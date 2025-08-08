@@ -1,407 +1,341 @@
 import 'package:flutter/material.dart';
+import 'entry_type.dart';
+import 'budget_page.dart';
+import 'report_page.dart';
+import 'settings_page.dart';
+import '../widgets/custom_nav_bar.dart';
 
 class Dashboard extends StatefulWidget {
   final String userName;
-  
-  const Dashboard({super.key, required this.userName});
+  final double income;
+  final bool isDarkMode;
+  const Dashboard({super.key, required this.userName, required this.income, this.isDarkMode = false});
 
   @override
   State<Dashboard> createState() => _DashboardState();
 }
 
 class _DashboardState extends State<Dashboard> {
-  double totalBalance = 2500.00;
-  double monthlyIncome = 3200.00;
-  double monthlyExpenses = 1800.00;
-  double savings = 700.00;
+  // Removed _selectedIndex, now handled by CustomNavBar
+  String _selectedFilter = 'Daily';
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = widget.isDarkMode;
+    final Color bgColor = isDark ? const Color(0xFF4C3D9A) : const Color(0xFFF6F0FF);
+    final Color textColor = isDark ? Colors.white : const Color(0xFF2B1B3F);
+    // Removed navBg, now handled by CustomNavBar
+    final Color iconColor = isDark ? Colors.white : const Color(0xFF2B1B3F);
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
+      backgroundColor: bgColor,
+      body: Stack(
+        children: [
+          Column(
             children: [
-              // Header Section
+              // Header
               Container(
-                padding: const EdgeInsets.all(20),
-                decoration: const BoxDecoration(
-                  color: Color(0xFF1E0B30),
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(30),
-                    bottomRight: Radius.circular(30),
-                  ),
-                ),
-                child: Column(
-                  children: [
-                    // Top Row with Menu and Profile
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Image.asset(
-                            'icons/menu.png',
-                            width: 24,
-                            height: 24,
-                            color: Colors.white,
-                          ),
-                        ),
-                        Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: const Icon(
-                            Icons.person,
-                            color: Colors.white,
-                            size: 24,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    // Welcome Text
-                    Row(
-                      children: [
-                        const Text(
-                          'Welcome back, ',
-                          style: TextStyle(
-                            color: Colors.white70,
-                            fontSize: 16,
-                          ),
-                        ),
-                        Text(
-                          widget.userName,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    // Balance Card
-                    Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            blurRadius: 10,
-                            offset: const Offset(0, 5),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        children: [
-                          const Text(
-                            'Total Balance',
-                            style: TextStyle(
-                              color: Colors.grey,
-                              fontSize: 14,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            '\$${totalBalance.toStringAsFixed(2)}',
-                            style: const TextStyle(
-                              color: Color(0xFF1E0B30),
-                              fontSize: 32,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              _buildBalanceItem('Income', monthlyIncome, Colors.green),
-                              _buildBalanceItem('Expenses', monthlyExpenses, Colors.red),
-                              _buildBalanceItem('Savings', savings, Colors.blue),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-              
-              // Quick Actions Section
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                padding: const EdgeInsets.only(top: 48, left: 20, right: 20, bottom: 20),
+                color: const Color(0xFFD6C6F6),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text(
-                      'Quick Actions',
+                      'FinTrack',
                       style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF1E0B30),
+                        fontWeight: FontWeight.w900,
+                        fontSize: 26,
+                        color: Color(0xFF2B1B3F),
+                        letterSpacing: 1.2,
+                        shadows: [
+                          Shadow(
+                            color: Colors.black12,
+                            blurRadius: 4,
+                            offset: Offset(0, 2),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 16),
                     Row(
                       children: [
-                        Expanded(child: _buildQuickActionCard('Add Income', 'icons/income.png', Colors.green)),
-                        const SizedBox(width: 12),
-                        Expanded(child: _buildQuickActionCard('Add Expense', 'icons/expense.png', Colors.red)),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Expanded(child: _buildQuickActionCard('Scan Receipt', 'icons/scan.png', Colors.blue)),
-                        const SizedBox(width: 12),
-                        Expanded(child: _buildQuickActionCard('Set Budget', 'icons/budget.jpg', Colors.orange)),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-              
-              // Recent Transactions Section
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
+                        const Icon(Icons.chevron_left, color: Color(0xFF2B1B3F)),
                         const Text(
-                          'Recent Transactions',
+                          '< 2025 Jun >',
                           style: TextStyle(
-                            fontSize: 20,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF1E0B30),
+                            fontSize: 20,
+                            color: Color(0xFF2B1B3F),
+                            letterSpacing: 0.5,
+                            shadows: [
+                              Shadow(
+                                color: Colors.black12,
+                                blurRadius: 4,
+                                offset: Offset(0, 2),
+                              ),
+                            ],
                           ),
                         ),
-                        TextButton(
-                          onPressed: () {
-                            // Navigate to transactions page
-                          },
-                          child: const Text(
-                            'View All',
-                            style: TextStyle(
-                              color: Color(0xFF7C4DFF),
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
+                        const Icon(Icons.chevron_right, color: Color(0xFF2B1B3F)),
                       ],
                     ),
-                    const SizedBox(height: 16),
-                    _buildTransactionCard('Grocery Store', 'Food & Drinks', -45.50, 'icons/foodndrink.png'),
-                    _buildTransactionCard('Salary', 'Income', 3200.00, 'icons/income.png'),
-                    _buildTransactionCard('Coffee Shop', 'Food & Drinks', -8.75, 'icons/foodndrink.png'),
-                    _buildTransactionCard('Gas Station', 'Transportation', -35.00, 'icons/cash.png'),
                   ],
                 ),
               ),
-              const SizedBox(height: 20),
-              
-              // Bottom Navigation Placeholder
+              // Total Balance
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, -5),
+                color: const Color(0xFFD6C6F6),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 10),
+                    const Text(
+                      'Total Balance',
+                      style: TextStyle(
+                        color: Color(0xFF7B6F8E),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
+                    const SizedBox(height: 5),
+                    Text(
+                      '₱${widget.income.toStringAsFixed(2)}',
+                      style: const TextStyle(
+                        color: Color(0xFF2B1B3F),
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        _buildSummaryCard(
+                          icon: 'icons/expense.png',
+                          label: 'Expense',
+                          value: '₱0.00',
+                          iconBg: const Color(0xFFF6E1E1),
+                          iconColor: Color(0xFFB95B5B),
+                        ),
+                        const SizedBox(width: 16),
+                        _buildSummaryCard(
+                          icon: 'icons/income.png',
+                          label: 'Income',
+                          value: '₱${widget.income.toStringAsFixed(2)}',
+                          iconBg: Color(0xFFE1F6E8),
+                          iconColor: Color(0xFF4CB97B),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
                   ],
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    _buildNavItem('Home', 'icons/home.png', true),
-                    _buildNavItem('Transactions', 'icons/transac.png', false),
-                    _buildNavItem('Budget', 'icons/budget.jpg', false),
-                    _buildNavItem('Reports', 'icons/reports.png', false),
-                    _buildNavItem('Settings', 'icons/settings.png', false),
-                  ],
+              ),
+              // Transactions Section
+              Expanded(
+                child: Container(
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFF6F0FF),
+                  ),
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              'Transactions',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                color: Color(0xFF2B1B3F),
+                              ),
+                            ),
+                            DropdownButton<String>(
+                              value: _selectedFilter,
+                              underline: const SizedBox(),
+                              icon: const Icon(Icons.arrow_drop_down, color: Color(0xFF2B1B3F)),
+                              items: ['Daily', 'Weekly', 'Monthly']
+                                  .map((e) => DropdownMenuItem(
+                                        value: e,
+                                        child: Text(e),
+                                      ))
+                                  .toList(),
+                              onChanged: (val) {
+                                setState(() {
+                                  _selectedFilter = val!;
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                      // Transaction List
+                      Expanded(
+                        child: ListView(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          children: [
+                            // Transaction items will be dynamically added from user input in expense entry and entry type.
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
           ),
-        ),
+        ],
+      ),
+      bottomNavigationBar: CustomNavBar(
+        selectedIndex: 0,
+        onItemTapped: (index) {
+          if (index == 0) {
+            // Already on Dashboard
+          } else if (index == 1) {
+            Navigator.of(context).pushReplacement(createSlideRoute(const ReportPage()));
+          } else if (index == 2) {
+            Navigator.of(context).pushReplacement(createSlideRoute(const BudgetPage()));
+          } else if (index == 3) {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (context) => const SettingsPage()),
+            );
+          }
+        },
+        onFabPressed: () {
+          Navigator.of(context).push(createSlideRoute(const EntryTypePage()));
+        },
       ),
     );
   }
 
-  Widget _buildBalanceItem(String label, double amount, Color color) {
-    return Column(
-      children: [
-        Text(
-          label,
-          style: const TextStyle(
-            color: Colors.grey,
-            fontSize: 12,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          '\$${amount.toStringAsFixed(0)}',
-          style: TextStyle(
-            color: color,
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildQuickActionCard(String title, String iconPath, Color color) {
+  Widget _buildSummaryCard({
+    required String icon,
+    required String label,
+    required String value,
+    required Color iconBg,
+    required Color iconColor,
+  }) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      width: 140,
+      height: 70,
+      margin: const EdgeInsets.symmetric(horizontal: 2),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Image.asset(
-              iconPath,
-              width: 24,
-              height: 24,
-              color: color,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF1E0B30),
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTransactionCard(String title, String category, double amount, String iconPath) {
-    final isExpense = amount < 0;
-    final amountColor = isExpense ? Colors.red : Colors.green;
-    final amountPrefix = isExpense ? '-' : '+';
-    
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 8,
             offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            width: 36,
+            height: 36,
             decoration: BoxDecoration(
-              color: amountColor.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(8),
+              color: iconBg,
+              borderRadius: BorderRadius.circular(10),
             ),
-            child: Image.asset(
-              iconPath,
-              width: 20,
-              height: 20,
-              color: amountColor,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF1E0B30),
-                  ),
-                ),
-                Text(
-                  category,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey,
-                  ),
-                ),
-              ],
+            child: Center(
+              child: Image.asset(
+                icon,
+                width: 22,
+                height: 22,
+                color: iconColor,
+              ),
             ),
           ),
-          Text(
-            '$amountPrefix\$${amount.abs().toStringAsFixed(2)}',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: amountColor,
-            ),
+          const SizedBox(width: 10),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 13,
+                  color: Color(0xFF7B6F8E),
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF2B1B3F),
+                ),
+              ),
+            ],
           ),
         ],
       ),
     );
   }
 
-  Widget _buildNavItem(String label, String iconPath, bool isActive) {
+  Widget _buildTransactionItem({
+    required String date,
+    required String description,
+    required String amount,
+    required bool isIncome,
+  }) {
     return Column(
-      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Image.asset(
-          iconPath,
-          width: 24,
-          height: 24,
-          color: isActive ? const Color(0xFF7C4DFF) : Colors.grey,
+        Padding(
+          padding: const EdgeInsets.only(top: 8, bottom: 2),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                date,
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: Color(0xFF7B6F8E),
+                ),
+              ),
+              Text(
+                amount,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                  color: isIncome ? const Color(0xFF4CB97B) : const Color(0xFFB95B5B),
+                ),
+              ),
+            ],
+          ),
         ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 10,
-            color: isActive ? const Color(0xFF7C4DFF) : Colors.grey,
-            fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
+        Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: Text(
+            description,
+            style: TextStyle(
+              fontSize: 15,
+              color: isIncome ? const Color(0xFF4CB97B) : const Color(0xFFB95B5B),
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
       ],
+    );
+  }
+
+  // Removed _buildNavItem, now handled by CustomNavBar
+
+  PageRouteBuilder createSlideRoute(Widget page) {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => page,
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        const begin = Offset(1.0, 0.0);
+        const end = Offset.zero;
+        const curve = Curves.ease;
+        var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        var offsetAnimation = animation.drive(tween);
+        return SlideTransition(position: offsetAnimation, child: child);
+      },
     );
   }
 } 

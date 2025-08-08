@@ -52,7 +52,7 @@ class Mainpage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFF4C3D9A),
       body: Center(
         child: SizedBox(
           width: 393,
@@ -60,28 +60,21 @@ class Mainpage extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Container(
-                width: 92,
-                height: 80,
-                decoration: BoxDecoration(
-                  color: Colors.grey[400],
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              const SizedBox(height: 200),
-              Row(
+              _InteractiveLogo(size: 210),
+              const SizedBox(height: 80),
+              Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   CustomButton(
-                    width: 136,
-                    height: 33,
+                    width: 170,
+                    height: 48,
                     borderColor: const Color(0xFF2C2C2C),
                     fillColor: const Color(0xFF1E0B30),
                     child: const Text(
                       'Sign In',
                       style: TextStyle(
                         fontFamily: 'Inter',
-                        fontSize: 16,
+                        fontSize: 18,
                         color: Colors.white,
                         height: 1.0,
                         letterSpacing: 0,
@@ -91,17 +84,17 @@ class Mainpage extends StatelessWidget {
                       Navigator.of(context).push(createSignInRoute());
                     },
                   ),
-                  const SizedBox(width: 20),
+                  const SizedBox(height: 24),
                   CustomButton(
-                    width: 136,
-                    height: 33,
+                    width: 170,
+                    height: 48,
                     borderColor: const Color(0xFF2C2C2C),
                     fillColor: const Color(0xFF1E0B30),
                     child: const Text(
                       'Sign Up',
                       style: TextStyle(
                         fontFamily: 'Inter',
-                        fontSize: 16,
+                        fontSize: 18,
                         color: Colors.white,
                         height: 1.0,
                         letterSpacing: 0,
@@ -114,6 +107,75 @@ class Mainpage extends StatelessWidget {
                 ],
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _InteractiveLogo extends StatefulWidget {
+  final double size;
+  const _InteractiveLogo({this.size = 180});
+  @override
+  State<_InteractiveLogo> createState() => _InteractiveLogoState();
+}
+
+class _InteractiveLogoState extends State<_InteractiveLogo> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 120),
+      lowerBound: 0.95,
+      upperBound: 1.15,
+      value: 1.0,
+    );
+    _scaleAnimation = _controller.drive(Tween(begin: 1.0, end: 1.15));
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _onTapDown(TapDownDetails details) {
+    _controller.animateTo(1.15, duration: const Duration(milliseconds: 120));
+  }
+
+  void _onTapUp(TapUpDetails details) {
+    _controller.animateBack(1.0, duration: const Duration(milliseconds: 120));
+  }
+
+  void _onTapCancel() {
+    _controller.animateBack(1.0, duration: const Duration(milliseconds: 120));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapDown: _onTapDown,
+      onTapUp: _onTapUp,
+      onTapCancel: _onTapCancel,
+      child: AnimatedBuilder(
+        animation: _controller,
+        builder: (context, child) {
+          return Transform.scale(
+            scale: _controller.value,
+            child: child,
+          );
+        },
+        child: SizedBox(
+          width: widget.size,
+          height: widget.size,
+          child: Image.asset(
+            'icons/logo1.jpg',
+            fit: BoxFit.contain,
           ),
         ),
       ),
